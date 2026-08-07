@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: airline
+  datasource:
+    url: jdbc:postgresql://airline-db:5432/airline
+    driver-class-name: org.postgresql.Driver
+    username: klm
+    password: SUPERSECRETKLMPW
+    hikari:
+      initialization-fail-timeout: 1
+      connection-timeout: 30000
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        default_schema: airline
+  sql:
+    init:
+      mode: always
+      platform: postgresql

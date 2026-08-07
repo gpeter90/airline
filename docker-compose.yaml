@@ -1,0 +1,54 @@
+version: '3.9'
+name: airline-klm
+services:
+
+  airline-db:
+    container_name: airline-db
+    image: 'postgres:16-alpine'
+    command: >
+      -c logging_collector=on
+      -c log_statement=all
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    environment:
+      - POSTGRES_USER=klm
+      - POSTGRES_PASSWORD=SUPERSECRETKLMPW
+      - POSTGRES_DB=airline
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/airline-db-data:/var/lib/postgresql
+    restart: on-failure
+
+  airline:
+    container_name: airline
+    image: docker.klm.com/airline:latest
+    depends_on:
+      - airline-db
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_H2_CONSOLE_ENABLED=false
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://airline-db:5432/airline
+      - SPRING_DATASOURCE_DRIVERCLASSNAME=org.postgresql.Driver
+      - SPRING_DATASOURCE_USERNAME=klm
+      - SPRING_DATASOURCE_PASSWORD=SUPERSECRETKLMPW
+      - SPRING_SQL_INIT_PLATFORM=postgresql
+    ports:
+      - "8081:8080"
+      - "8001:8000"
+    restart: on-failure
+
+networks:
+  default:
+    name: airline
+    driver: bridge
